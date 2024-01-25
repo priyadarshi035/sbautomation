@@ -26,15 +26,15 @@ purge_dlq_topic() {
 
 
 
-TOPIC_LIST=$(az servicebus topic list --namespace-name spstpbussv001 --resource-group SAP-STT-RG-APPS-PROD -o json | .jq '.[].name')
+TOPIC_LIST=$(az servicebus topic list --namespace-name spstpbussv001 --resource-group SAP-STT-RG-APPS-PROD -o json | jq '.[].name')
 
 for i in ${TOPIC_LIST[@]}
 do
 
 #   TOPIC_NAME=$(echo $i | tr -d '"')
 TOPIC_NAME="sbt-supplier-saz-other"
-  SUBSCRIPTION_DETAILS=$(az servicebus topic subscription list --namespace-name spstpbussv001 --resource-group SAP-STT-RG-APPS-PROD --topic-name $TOPIC_NAME -o json | .jq 'map(select(.countDetails.deadLetterMessageCount>0))')
-  SUBSCRIPTION_DETAILS_LN=$(echo $SUBSCRIPTION_DETAILS | .jq '.| length')
+  SUBSCRIPTION_DETAILS=$(az servicebus topic subscription list --namespace-name spstpbussv001 --resource-group SAP-STT-RG-APPS-PROD --topic-name $TOPIC_NAME -o json | jq 'map(select(.countDetails.deadLetterMessageCount>0))')
+  SUBSCRIPTION_DETAILS_LN=$(echo $SUBSCRIPTION_DETAILS | jq '.| length')
   
 
 #> topic-test.json
@@ -42,10 +42,10 @@ TOPIC_NAME="sbt-supplier-saz-other"
     echo "INFORM: There are NO Messages in the Dead Letter Queues for topic $TOPIC_NAME !!!"
   else
     echo "INFORM: Topic: $TOPIC_NAME with Dead Letter Queues Message has been Received & Deletion is in Progress!!!"
-    echo $SUBSCRIPTION_DETAILS | .jq -c '.[]' | while read j;
+    echo $SUBSCRIPTION_DETAILS | jq -c '.[]' | while read j;
         do         
-            SUBSCRIPTION_NAME=$(echo $j | .jq .name)
-            DLQ_TOPIC_COUNT=$(echo $j | .jq .countDetails.deadLetterMessageCount)
+            SUBSCRIPTION_NAME=$(echo $j | jq .name)
+            DLQ_TOPIC_COUNT=$(echo $j | jq .countDetails.deadLetterMessageCount)
             #echo Topic: $TOPIC_NAME Subscription Name: $SUBSCRIPTION_NAME DLQ Count: $DLQ_TOPIC_COUNT >> topic-test.json
             purge_dlq_topic $TOPIC_NAME $SUBSCRIPTION_NAME $DLQ_TOPIC_COUNT
             
