@@ -44,9 +44,8 @@ TOPIC_NAME="sbt-supplier-saz-other"
     echo "INFORM: Topic: $TOPIC_NAME with Dead Letter Queues Message has been Received & Deletion is in Progress!!!"
     echo $SUBSCRIPTION_DETAILS | jq -c '.[]' | while read j;
         do         
-            SUBSCRIPTION_NAME=$(echo $j | jq .name)
+            SUBSCRIPTION_NAME=$(echo $j | ./jq .name | tr -d '"')
             DLQ_TOPIC_COUNT=$(echo $j | jq .countDetails.deadLetterMessageCount)
-            #echo Topic: $TOPIC_NAME Subscription Name: $SUBSCRIPTION_NAME DLQ Count: $DLQ_TOPIC_COUNT >> topic-test.json
             purge_dlq_topic $TOPIC_NAME $SUBSCRIPTION_NAME $DLQ_TOPIC_COUNT
             
         done
